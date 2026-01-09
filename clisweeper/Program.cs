@@ -6,6 +6,7 @@ using GNUArgParser;
 using Newtonsoft.Json;
 
 string configPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "clisweeper");
+if (!Directory.Exists(configPath)) Directory.CreateDirectory(configPath);
 string defaultFile = Path.Join(configPath, "default.json");
 if (!File.Exists(defaultFile)) File.WriteAllLines(defaultFile, [ "{", "    \"width\": 16,", "    \"height\": 16,", "    \"mines\": 32", "}" ]);
 string json = File.ReadAllText(defaultFile);
@@ -224,7 +225,7 @@ while (true) {
             Write(new string(' ', WindowWidth));
             SetCursorPosition(ox, oy + height+4);
             Thread.Sleep(500);
-            int secondss = (winTime - gameStart).Value.Seconds;
+            int secondss = (int)Math.Floor((winTime - gameStart).Value.TotalSeconds);
             if (timer != null) secondss = (timer - secondss).Value;
             Write($"\e[92m{secondss/60}:{secondss%60:00}\e[0m │ \e[1mPress any key to exit\e[0m");
             ReadKey(true);
@@ -235,7 +236,7 @@ while (true) {
     SetCursorPosition(ox, oy + height+4);
     Write(new string(' ', WindowWidth));
     SetCursorPosition(ox, oy + height+4);
-    int seconds = (DateTime.Now - gameStart).Seconds;
+    int seconds = (int)Math.Floor((DateTime.Now - gameStart).TotalSeconds);
     if (timer != null) seconds = (timer - seconds).Value;
     Write($"{cx}, {cy} │ \e[1m{minec-flags.Count}\e[0m left │ \e[1m{seconds/60}:{seconds%60:00}\e[0m");
     SetCursorPosition(ox + cx*2 + 1, oy + cy+3);
@@ -254,7 +255,7 @@ while (true) {
             if (flags.Contains((cx, cy))) flags.Remove((cx, cy));
             else flags.Add((cx, cy)); redraw = true;
         }
-        if (cellsRemaining == flags.Count) {
+        if (cellsRemaining == flags.Count && flags.Count == minec) {
             winTime = DateTime.Now;
             redraw = true;
         }
